@@ -4,12 +4,12 @@ function(data, wts_tbl, period = "monthly"){
   output_tbl <- data %>% 
     multi_asset_return_portfolio(period = period) %>% 
     portfolio_return(wts_tbl, name_portfolio = "new portfolio") %>% 
-    select(-symbol) %>% 
+    select(-symbol) %>% #intentionally remove the symbol of new portfolio label
     mutate(
       # date = floor_date(date, unit = unit), #setup floor date
       label_text = str_glue("
                                  Date: {date}
-                                 Returns: {scales::percent(returns)}")) 
+                                 Returns: {scales::percent(returns, accuracy = 0.01)}")) 
   return(output_tbl)
 }
 generate_forecast_xgb <-
@@ -126,7 +126,9 @@ function(data, n_future = 12, seed = NULL, penalty = 0, mixture = 0){
     set.seed(seed)
     model <- linear_reg(mode = "regression", penalty = penalty, mixture = mixture) %>% 
       set_engine(engine = "glmnet") %>% #is the output
-      fit.model_spec(returns ~ ., data = train_tbl %>% select(-date, -label_text, -diff)) #fits data into the model
+      fit.model_spec(returns ~ ., data = train_tbl %>% select(-date, 
+                                                              -label_text,
+                                                              -diff)) #fits data into the model
   }
   
   prediction_tbl <- predict(model,
@@ -137,7 +139,7 @@ function(data, n_future = 12, seed = NULL, penalty = 0, mixture = 0){
            date = index) %>% 
     mutate(
       label_text = str_glue("Date: {date}
-                                 Returns: {scales::percent(returns)}")) %>% 
+                                 Returns: {scales::percent(returns, accuracy = 0.01)}")) %>% 
     add_column(key = "Prediction")
   
   output_tbl <- data %>% 
@@ -162,7 +164,7 @@ function(data, ggplotly = FALSE, period){
     scale_color_tq() + 
     scale_y_continuous(labels = scales::percent_format()) +
     labs(
-      title = str_glue("Returns of FAANG portfolio by {period}"),
+      title = str_glue("Returns of new portfolio by {period}"),
       subtitle = "Toggle by the timing",
       x = "", 
       y = "") 

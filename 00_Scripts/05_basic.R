@@ -11,10 +11,10 @@ function(data, period = "monthly"){
   return(output_tbl)
 }
 plot_time_series <-
-function(data, ggplotly = FALSE, facetgrid = FALSE, period = "monthly"){
+function(data, ggplotly = FALSE, period = "month"){
   
   g <- data %>% 
-    ggplot(aes(date, returns, colour = symbol)) +
+    ggplot(aes(date, returns)) +
     
     geom_line() +
     geom_point(aes(text = label_text), size = 0.1) +
@@ -24,17 +24,11 @@ function(data, ggplotly = FALSE, facetgrid = FALSE, period = "monthly"){
     scale_color_tq() + 
     scale_y_continuous(labels = scales::percent_format()) +
     labs(
-      title = str_glue("Returns of each asset in the portfolio by {period}"),
+      title = str_glue("Returns of new portfolio by {period}"),
       subtitle = "Toggle by the timing",
       x = "", 
       y = "") 
     
-  
-  if(facetgrid == TRUE){
-    g <- g + facet_grid(rows = vars(symbol),
-                        # scales = "free"
-                        )
-  }
   
   if(ggplotly == TRUE){
     g <- ggplotly(g, tooltip = "text")

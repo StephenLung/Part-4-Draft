@@ -76,9 +76,28 @@ multi_asset_return_portfolio <- function(stock_price_tbl, period = "monthly"){
                    mutate_fun = periodReturn,
                    period     = period,
                    col_rename = "returns") %>% 
-      ungroup() %>% 
-      #rollback to first day of the month - ETF Issue ----
-    mutate(date = lubridate::rollback(date, roll_to_first = TRUE))
+      ungroup()
+    
+    
+    # if statement, monthly or longer period will adjust rollback date
+    period_return_tbl <- if(period == "daily"){
+      
+      period_return_tbl
+      
+    } else if(period == "weekly"){
+      
+      period_return_tbl      
+      
+    }
+    
+    else{
+      
+      period_return_tbl %>% 
+        #rollback to first day of the month - ETF Issue ----
+      mutate(date = lubridate::rollback(date, roll_to_first = TRUE))
+      
+    }
+
     
     return(period_return_tbl)
     
