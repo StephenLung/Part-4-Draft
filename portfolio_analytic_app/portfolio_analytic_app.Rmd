@@ -173,8 +173,11 @@ fluidRow(
   column(6,
          selectInput(inputId = "bench_stock",
                      label = h4("Benchmark"),
-                     choices = tq_index_options(),
-                     selected = tq_index_options()[[4]])),
+                     choices = c("S&P 500" = "^GSPC",
+                                 "DJIA" = "^DJI",
+                                 "NASDAQ-100" = "^IXIC",
+                                 "FTSE-100" = "^FTSE"),
+                     selected = "^GSPC")),
   column(5,
          numericInput("window",
                    h4("Window"),
@@ -184,6 +187,8 @@ fluidRow(
                    step = 1
                    ))
 )
+
+#^GSPC, ^DJI, ^IXIC ^FTSE
 
 hr()
 
@@ -816,100 +821,100 @@ Column {.tabset .tabset-fade data-width=650}
 
 ```{r}
 
-# shinyWidgets::radioGroupButtons(
-#   inputId  = "time_unit_forecast", 
-#   label    = "Time Unit", 
-#   choices  = c("D" = "daily", "W" = "weekly", "M" = "monthly", "Q" = "quarterly", "Y" = "yearly"), 
-#   selected = "monthly", 
-#   status   = "primary", 
-#   justified = TRUE, 
-#   checkIcon = list(
-#     yes = icon("ok", lib = "glyphicon"), 
-#     no  = NULL
-#     )
-# )
-# 
-# observeEvent(eventExpr = input$time_unit_forecast, {
-# 
-#     if(input$forecast_mode){
-# 
-#         delay(300, click(id = "apply"))
-# 
-#     }
-# 
-# })
-# 
-# observeEvent(eventExpr = input$forecast_mode, {
-# 
-# 
-# 
-#         delay(300, click(id = "apply"))
-# 
-# 
-# 
-# }, once = TRUE)
+shinyWidgets::radioGroupButtons(
+  inputId  = "time_unit_forecast",
+  label    = "Time Unit",
+  choices  = c("D" = "daily", "W" = "weekly", "M" = "monthly", "Q" = "quarterly", "Y" = "yearly"),
+  selected = "monthly",
+  status   = "primary",
+  justified = TRUE,
+  checkIcon = list(
+    yes = icon("ok", lib = "glyphicon"),
+    no  = NULL
+    )
+)
+
+observeEvent(eventExpr = input$time_unit_forecast, {
+
+    if(input$forecast_mode){
+
+        delay(300, click(id = "apply"))
+
+    }
+
+})
+
+observeEvent(eventExpr = input$forecast_mode, {
+
+
+
+        delay(300, click(id = "apply"))
+
+
+
+}, once = TRUE)
 
 ```
 
 ```{r}
-# time_plot_tbl <- reactive({
-#   
-#     symbols <- c(input$stock1, 
-#                input$stock2,
-#                input$stock3,
-#                input$stock4,
-#                input$stock5)
-#   
-#   end <- input$end_date
-#   start <- input$start_date
-#   
-#   w <- c(input$w1/100,
-#          input$w2/100,
-#          input$w3/100,
-#          input$w4/100,
-#          input$w5/100)
-#   
-#   wts_tbl <- tibble(symbols, w)
-#   
-# 
-#   multi_asset_price_portfolio(symbols = symbols, end, start, wts_tbl) %>%
-#   aggregate_returns_portfolio_2(wts_tbl = wts_tbl, period = input$time_unit_forecast) 
-#   
-#   
-# })
-# 
-# 
-# time_plot_predictions_tbl <- eventReactive(eventExpr = input$submit, {
-# 
-#   if(input$forecast_mode){
-#   time_plot_tbl() %>%
-#   generate_forecast_glmnet(n_future = input$n_future,
-#                            seed = 123,
-#                            penalty = 0,
-#                            mixture = 0)
-#   } 
-#   
-# })
-# 
-# # renderPrint(time_plot_predictions_tbl())
-# 
-# output$plotly_2 <- renderPlotly({
-#   
-#   if(input$forecast_mode){
-#     p <- time_plot_predictions_tbl() %>%
-#   plot_time_series_portfolio(period = input$time_unit_forecast, ggplotly = TRUE)
-#     
-#   } else {
-#     p <- time_plot_tbl() %>%
-#         plot_time_series(period = input$time_unit_forecast, ggplotly = TRUE)
-#   }
-#   
-#     p %>%
-#     layout(margin = list(b = 200))
-#   
-# })
-# 
-# plotlyOutput(outputId = "plotly_2")
+time_plot_tbl <- reactive({
+
+    symbols <- c(input$stock1,
+               input$stock2,
+               input$stock3,
+               input$stock4,
+               input$stock5)
+
+  end <- input$end_date
+  start <- input$start_date
+
+  w <- c(input$w1/100,
+         input$w2/100,
+         input$w3/100,
+         input$w4/100,
+         input$w5/100)
+
+  wts_tbl <- tibble(symbols, w)
+
+
+  multi_asset_price_portfolio(symbols = symbols, end, start, wts_tbl) %>%
+  aggregate_returns_portfolio_2(wts_tbl = wts_tbl, period = input$time_unit_forecast)
+
+
+})
+
+
+time_plot_predictions_tbl <- eventReactive(eventExpr = input$submit, {
+
+  if(input$forecast_mode){
+  time_plot_tbl() %>%
+  generate_forecast_glmnet(n_future = input$n_future,
+                           seed = 123,
+                           penalty = 0,
+                           mixture = 0)
+  }
+
+})
+
+# renderPrint(time_plot_predictions_tbl())
+
+output$plotly_2 <- renderPlotly({
+
+  if(input$forecast_mode){
+    p <- time_plot_predictions_tbl() %>%
+  plot_time_series_portfolio(period = input$time_unit_forecast, ggplotly = TRUE)
+
+  } else {
+    p <- time_plot_tbl() %>%
+        plot_time_series(period = input$time_unit_forecast, ggplotly = TRUE)
+  }
+
+    p %>%
+    layout(margin = list(b = 200))
+
+})
+
+plotlyOutput(outputId = "plotly_2")
 
 ```
 
@@ -917,35 +922,120 @@ Column {.tabset .tabset-fade data-width=650}
 ### Portfolio vs Benchmark (Plotly)
 
 ```{r}
+output$plotly_3 <- renderPlotly({
+  (port_wealth_index() %>%
+    mutate(portfolio = as.factor(portfolio) %>% fct_reorder(investment.growth),
+           label_text = str_glue("Portfolio: {str_to_title(portfolio)}
+                                 Investment: {scales::dollar(investment.growth, accuracy = 1)}
+                                 Growth %: {scales::percent(portfolio.wealthindex - 1, accuracy = 0.01)}")) %>%
+    ggplot(aes(x = date, y = investment.growth, col = portfolio)) +
+    geom_point(aes(text = label_text), size = 0.1) + #Must indicate label_text for tooltip to showup
+    geom_line() +
 
-renderPrint(port_wealth_index())
+    # Addition of Global Financial Crisis vertical line in Sept 2008
+    geom_vline(xintercept = as.numeric(as.Date("2008-09-01")), linetype = "dotted", color = "red", size = 1.5) +
+    annotate("text", x =  as.Date("2008-09-01") + 1200, y = 23000, label = "2008 Financial Crisis", color = "red") +
 
-# output$plotly_3 <- renderPlotly({
-#   (port_wealth_index() %>% 
-#     mutate(portfolio = as.factor(portfolio) %>% fct_reorder(investment.growth),
-#            label_text = str_glue("Portfolio: {str_to_title(portfolio)}
-#                                  Investment: {scales::dollar(investment.growth, accuracy = 1)}
-#                                  Growth %: {scales::percent(portfolio.wealthindex - 1, accuracy = 0.01)}")) %>% 
-#     ggplot(aes(x = date, y = investment.growth, col = portfolio)) +
-#     geom_point(aes(text = label_text), size = 0.1) + #Must indicate label_text for tooltip to showup 
-#     geom_line() + 
-#     
-#     # Addition of Global Financial Crisis vertical line in Sept 2008
-#     geom_vline(xintercept = as.numeric(as.Date("2008-09-01")), linetype = "dotted", color = "red", size = 1.5) +
-#     annotate("text", x =  as.Date("2008-09-01") + 1200, y = 23000, label = "2008 Financial Crisis", color = "red") + 
-# 
-#     scale_color_tq() + 
-#     scale_y_continuous(labels = scales::dollar_format()) + 
-#     labs(title = "Portfolio vs Benchmark (SP500)",
-#          x = "",
-#          y = "")) %>%  
-#   
-#     ggplotly(tooltip = "text") #workaround issue on ggplotly; add parenthsis in front of ggplot
-# })
-# 
-# plotlyOutput(outputId = "plotly_3")
+    scale_color_tq() +
+    scale_y_continuous(labels = scales::dollar_format()) +
+    labs(title = str_glue("New Portfolio vs Benchmark"),
+         x = "",
+         y = "")) %>%
+
+    ggplotly(tooltip = "text") #workaround issue on ggplotly; add parenthsis in front of ggplot
+})
+
+plotlyOutput(outputId = "plotly_3")
 ```
 
+### Rolling Standard Deviation (Highcharter)
+
+```{r}
+renderHighchart({
+  
+  port_rolling_sd_hc <- port_rolling_sd_tq() %>% 
+    tk_xts(date_col = date) %>% 
+    round(., 4) * 100
+  
+  benchmarket_rolling_sd_hc <- benchmark_rolling_sd_tq() %>% 
+    tk_xts(date_col = date) %>% 
+    round(., 4) * 100
+  
+  highchart(type = "stock") %>% 
+    hc_title(text = "All Seasons Rolling Standard Deviation") %>% 
+    hc_subtitle(text = str_glue("Standard Deviation measures the dispersion of returns around the mean. The higher the dispersion, the more risky or volatile the portfolio. Rolling standard deviation over {input$window} periods")) %>% 
+    hc_yAxis(title = list(text = str_glue(" Rolling {input$window} month standard deviation")),
+             labels = list(format = "{value}%"),
+             opposite = FALSE) %>% 
+    hc_add_series(benchmarket_rolling_sd_hc,
+                  name = "Benchmark Volatility",
+                  color = palette_light()[[1]]) %>% 
+    hc_add_series(port_rolling_sd_hc,
+                  name = "Portfolio Volatility",
+                  color = palette_light()[[2]]) %>% 
+    hc_navigator(enabled = FALSE) %>% 
+    hc_scrollbar(enabled = FALSE) %>% 
+    hc_exporting(enabled = TRUE)
+  
+})
+```
+
+### Rolling Skewness (Highcharter)
+
+```{r}
+# renderTable(port_rolling_skew_hc())
+
+
+renderHighchart({
+  highchart(type = "stock") %>%
+    hc_title(text = "Rolling Skew") %>%
+    hc_subtitle(text = str_glue("Skewness measures the symmetry or more precisely, the lack of symmetry, around the mean. If returns are positively skewed, it implies numerous small negative returns and few large positive returns. vice versa. A portfolio should stay away from negatively skewed as it implies a portfolio risk of rare but large losses. Rolling skewness over {input$window} periods")) %>% 
+    hc_yAxis(title = list(text = str_glue(" Rolling {input$window} month skewness")),
+             opposite = FALSE,
+             max = 3, min = -3) %>%
+    hc_add_series(bench_rolling_skew_hc(),
+                  name = "Benchmark",
+                  color = palette_light()[[1]]) %>%
+    hc_add_series(port_rolling_skew_hc(),
+                  name = "Portfolio Skewness",
+                  color = palette_light()[[2]]) %>%
+    hc_navigator(enabled = FALSE) %>%
+    hc_scrollbar(enabled = FALSE) %>%
+    hc_exporting(enabled = TRUE)
+
+})
+```
+
+### Rolling Kurtosis (Highcharter)
+
+```{r}
+
+
+renderHighchart({
+  highchart(type = "stock") %>%
+    hc_title(text = "Rolling Kurtosis") %>%
+    hc_subtitle(text = str_glue("Kurtosis measures the degree of portfolio returns appearing in the tail of the distribution. A normal distribution has a kurtosis of 3. Distribution greater than 3 will have more returns on its tail, which implies more negative returns on the left tail and even a risk of a huge downside event. vice versa. An ideal portfolio generally would have negative kurtosis, or less than 3. Rolling skewness over {input$window} periods")) %>% 
+    hc_yAxis(title = list(text = str_glue(" Rolling {input$window} month kurtosis")),
+             opposite = FALSE,
+             max = 5, min = -5) %>%
+    hc_add_series(bench_rolling_kurt_hc(),
+                  name = "Benchmark",
+                  color = palette_light()[[1]]) %>%
+    hc_add_series(port_rolling_kurt_hc(),
+                  name = "Portfolio Skewness",
+                  color = palette_light()[[2]]) %>%
+    hc_navigator(enabled = FALSE) %>%
+    hc_scrollbar(enabled = FALSE) %>%
+    hc_exporting(enabled = TRUE)
+
+})
+```
+
+
+### Rolling Sharpe (Highcharter) (TBD)
+```{r}
+
+```
 
 
 Column {data-width=175}
