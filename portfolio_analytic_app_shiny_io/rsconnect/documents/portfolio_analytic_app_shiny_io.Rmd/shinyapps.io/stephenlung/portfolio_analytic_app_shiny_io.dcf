@@ -1,0 +1,12 @@
+name: portfolio_analytic_app_shiny_io
+title: portfolio_analytic_app_shiny_io
+username:
+account: stephenlung
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2047231
+bundleId: 2961989
+url: https://stephenlung.shinyapps.io/portfolio_analytic_app_shiny_io/
+when: 1585872116.27857
+asMultiple: FALSE
+asStatic: FALSE
