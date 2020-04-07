@@ -5,8 +5,8 @@ account: stephenlung
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2047231
-bundleId: 2961989
+bundleId: 2962442
 url: https://stephenlung.shinyapps.io/portfolio_analytic_app_shiny_io/
-when: 1585872116.27857
+when: 1585882466.28049
 asMultiple: FALSE
 asStatic: FALSE

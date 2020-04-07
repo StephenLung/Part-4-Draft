@@ -818,7 +818,7 @@ rolling_sharpe_ratio <- eventReactive(eventExpr = input$submit,
 Column {.tabset .tabset-fade data-width=650}
 -----------------------------------------------------------------------
 
-### Returns forecast (Plotly + XGBoost)
+### Returns forecast (Plotly + GLMNet)
 
 
 ```{r}
